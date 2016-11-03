@@ -56,9 +56,10 @@ func main() {
 		switch cmds[0] {
 		case "conn", "connect":
 			e = connect(cmds[0], cmds[1:])
-		case "pack", "packet":
-		case "unpack", "unpacket":
+		case "rule":
+			e = addRule(cmds[0], cmds[1:])
 		case "send":
+			e = send(cmds[0], cmds[1:])
 		default:
 			e = errors.New("unsupport" + cmds[0])
 		}

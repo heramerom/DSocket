@@ -18,3 +18,7 @@ const (
 func Color(str string, color uint8) string {
 	return fmt.Sprintf("%s%s%s", ColorStart(color), str, EndColor)
 }
+
+func ColorStart(color uint8) string {
+	return fmt.Sprintf("\033[%dm", color)
+}
