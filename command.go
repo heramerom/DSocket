@@ -82,14 +82,16 @@ func connect_tcp(name, host string, port int) error {
 		for {
 			_, err := io.ReadFull(conn, header)
 			if err != nil {
-				log.Println("\t-Error", err)
+				log.Println("Error", err)
+				log.Println("[ERROR]:", "lost conn with name", name)
 				return
 			}
 			size := binary.BigEndian.Uint16(header)
 			playload := make([]byte, size)
 			_, err = io.ReadFull(conn, playload)
 			if err != nil {
-				log.Println("\t---Error", err)
+				log.Println("[ERROR]:", err)
+				log.Println("[ERROR]:", "lost conn with name", name)
 				return
 			}
 			//in <- playload
@@ -130,73 +132,73 @@ func unpack(msg []byte) {
 
 	for _, value := range rule {
 		switch value {
-		case "int8":
+		case "int8", "i8":
 			v, err := reader.ReadS8()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "int16":
+		case "int16", "i16":
 			v, err := reader.ReadS16()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "int24":
+		case "int24", "i24":
 			v, err := reader.ReadS24()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "int32":
+		case "int32", "int", "i", "i32":
 			v, err := reader.ReadS32()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "int64":
+		case "int64", "i64":
 			v, err := reader.ReadS64()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "uint16":
+		case "uint16", "u16":
 			v, err := reader.ReadU16()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "uint32":
+		case "uint32", "u32":
 			v, err := reader.ReadU32()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "uint64":
+		case "uint64", "u64":
 			v, err := reader.ReadU64()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%d", v))
 			}
-		case "float32":
+		case "float32", "f", "f32", "float":
 			v, err := reader.ReadFloat32()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%f", v))
 			}
-		case "float64":
+		case "float64", "f64":
 			v, err := reader.ReadFloat64()
 			if checkErr(err) {
 				sb.WriteString(fmt.Sprintf("%f", v))
 			}
-		case "string":
+		case "string", "s":
 			v, err := reader.ReadString()
 			if checkErr(err) {
 				sb.WriteString(v)
 			}
 		default:
-			log.Println("\tunsupport type: ", value)
+			log.Println("[ERROR]: unsupport type ", value)
 		}
 		sb.WriteString(" | ")
 	}
 
-	log.Println("\tRECV: ", sb.String())
+	log.Println("[RECV]: ", sb.String())
 }
 
 func checkErr(err error) bool {
 	if err != nil {
-		log.Println("\tError: ", err.Error())
+		log.Println("[ERROR]: ", err.Error())
 		return false
 	}
 	return true
@@ -250,7 +252,7 @@ func send(cmd string, args []string) error {
 	if err != nil {
 		return err
 	}
-	log.Printf("success to send %d\n", n)
+	log.Printf("[SUCCESS]: success to send %d\n", n)
 	return nil
 }
 
@@ -270,60 +272,60 @@ func pack(data string) ([]byte, error) {
 			return nil, errors.New("error parse")
 		}
 		switch kv[0] {
-		case "int8":
+		case "int8", "i8":
 			v, err := strconv.ParseInt(kv[1], 10, 8)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteS8(int8(v))
-		case "int16":
+		case "int16", "i16":
 			v, err := strconv.ParseInt(kv[1], 10, 16)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteS16(int16(v))
-		case "int32", "int":
+		case "int32", "int", "i", "i32":
 			v, err := strconv.ParseInt(kv[1], 10, 32)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteS32(int32(v))
-		case "int64":
+		case "int64", "i64":
 			v, err := strconv.ParseInt(kv[1], 10, 64)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteS64(int64(v))
 
-		case "uint16":
+		case "uint16", "u16":
 			v, err := strconv.ParseUint(kv[1], 10, 16)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteU16(uint16(v))
 
-		case "uint32", "uint":
+		case "uint32", "uint", "u32":
 			v, err := strconv.ParseUint(kv[1], 10, 32)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteU32(uint32(v))
 
-		case "uint64":
+		case "uint64", "u64":
 			v, err := strconv.ParseUint(kv[1], 10, 64)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteU64(uint64(v))
 
-		case "float", "float32":
+		case "float", "float32", "f32":
 			v, err := strconv.ParseFloat(kv[1], 32)
 			if err != nil {
 				return nil, err
 			}
 			writer.WriteFloat32(float32(v))
 
-		case "float64":
+		case "float64", "f64":
 			v, err := strconv.ParseFloat(kv[1], 64)
 			if err != nil {
 				return nil, err
@@ -338,7 +340,6 @@ func pack(data string) ([]byte, error) {
 		}
 	}
 	w := Writer()
-	w.WriteS16(int16(writer.Length()))
 	w.WriteBytes(writer.Data())
 	return w.Data(), nil
 }

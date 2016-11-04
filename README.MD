@@ -5,11 +5,13 @@
         -host
         -p
         -port
-        name
+        -n
+        -name
         
     rule 
-        -c code
-        -n name
+        -c -code code
+        -r -rule "int16|int8|string|int19|..."
+        -f  file    // unsupport
             
     send  -d "s str|int8 10|s string" name
         
