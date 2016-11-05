@@ -36,7 +36,7 @@ func main() {
 
 		ins := strings.TrimSpace(line)
 
-		fmt.Println("\t", ins)
+		//fmt.Println("\t", ins)
 
 		if ins == "exit" || ins == "quit" {
 			os.Exit(1)
@@ -49,7 +49,7 @@ func main() {
 		cmds, err := ParseInputArgs(ins)
 
 		if err != nil {
-			fmt.Println(Color("\tError", Red), err.Error())
+			fmt.Println(Color("[ERROR:]", Red), err.Error())
 		}
 
 		var e error
@@ -64,7 +64,7 @@ func main() {
 			e = errors.New("unsupport" + cmds[0])
 		}
 		if e != nil {
-			fmt.Println("\tError", e.Error())
+			fmt.Println("[ERROR:]", e.Error())
 		}
 
 	}
